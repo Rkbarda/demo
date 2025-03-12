@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Output Page</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } 
+            from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+        // 🔹 Firebase Configuration (Replace with your credentials)
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+                    apiKey:"{{ firebase_api_key }}",
+                    authDomain: "{{ firebase_auth_domain }}",
+                    projectId: "fir-46707",
+                    storageBucket: "fir-46707.firebasestorage.app",
+                    messagingSenderId: "1041040942548",
+                    appId: "1:1041040942548:web:3003a147d73437b6a4a241",
+                    measurementId: "G-YQ90RFEKB5"
+                };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const messageElem = document.getElementById("message");
+
+        // 🔹 Real-time Firestore Listener
+        const messageRef = doc(db, "messages", "latest");
+        onSnapshot(messageRef, (docSnap) => {
+            if (docSnap.exists()) {
+                messageElem.innerText = docSnap.data().text;
+            } else {
+                messageElem.innerText = "No messages yet.";
+            }
+        }, (error) => {
+            console.error("❌ Firestore error:", error);
+            messageElem.innerText = "⚠️ Permission denied. Please check Firestore rules.";
+        });
+    </script>
+</head>
+<body>
+    <h2>Output Page</h2>
+    <hr>
+    <h3>Latest Message:</h3>
+    <p id="message">Loading...</p>
+</body>
+</html>
+
+
+
+

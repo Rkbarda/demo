@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Page</title>
+</head>
+<body>
+    <h2>Enter Text</h2>
+    <input type="text" id="textInput">
+    <button onclick="sendData()">Submit</button>
+
+    <script>
+        function sendData() {
+            let text = document.getElementById("textInput").value;
+
+            fetch("/submit", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({text: text})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error("❌ Error:", error));
+        }
+    </script>
+</body>
+</html>

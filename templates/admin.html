@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h2>Admin Dashboard</h2>
+    <h3>Users</h3>
+    <ul id="users"></ul>
+
+    <h3>Messages</h3>
+    <ul id="messages"></ul>
+
+    <script type="module">
+        // 🔹 Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+
+        // 🔹 Firebase project configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1PIyGm1hAdEk7y8dEHj4VtvNVHFnXsi8",
+            authDomain: "fir-46707.firebaseapp.com",
+            projectId: "fir-46707",
+            storageBucket: "fir-46707.firebasestorage.app",
+            messagingSenderId: "1041040942548",
+            appId: "1:1041040942548:web:3003a147d73437b6a4a241",
+            measurementId: "G-YQ90RFEKB5"
+        };
+        // 🔹 Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // 🔹 Check if admin is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadUsers();
+                loadMessages();
+            } else {
+                document.body.innerHTML = "<h2>Access Denied. Please log in as an admin.</h2>";
+            }
+        });
+
+        // 🔹 Load Users
+        async function loadUsers() {
+            const userList = document.getElementById("users");
+            userList.innerHTML = "";
+
+            const querySnapshot = await getDocs(collection(db, "users"));
+            querySnapshot.forEach((doc) => {
+                const user = doc.data();
+                let status = user.verified ? "✅ Verified" : "❌ Pending";
+                userList.innerHTML += `<li>${user.name} - ${status}
+                    <button onclick="verifyUser('${doc.id}')">Approve</button>
+                </li>`;
+            });
+        }
+
+        // 🔹 Approve User
+        window.verifyUser = async function (userId) {
+            await updateDoc(doc(db, "users", userId), { verified: true });
+            alert("User Approved!");
+            loadUsers();
+        };
+
+        // 🔹 Load Messages
+        async function loadMessages() {
+            const msgList = document.getElementById("messages");
+            msgList.innerHTML = "";
+
+            const querySnapshot = await getDocs(collection(db, "messages"));
+            querySnapshot.forEach((doc) => {
+                msgList.innerHTML += `<li>${doc.data().text}
+                    <button onclick="deleteMessage('${doc.id}')">🗑 Delete</button>
+                </li>`;
+            });
+        }
+
+        // 🔹 Delete Message
+        window.deleteMessage = async function (msgId) {
+            await deleteDoc(doc(db, "messages", msgId));
+            alert("Message Deleted!");
+            loadMessages();
+        };
+    </script>
+</body>
+</html>
